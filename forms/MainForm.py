@@ -6,48 +6,72 @@
 
 """
 
-from PyQt5.QtWidgets import (QWidget, QToolTip,
-                             QPushButton, QTextEdit, QLabel, QMessageBox)
+from PyQt5.QtWidgets import (QToolTip,
+                             QPushButton, QTextEdit, QLabel, QMessageBox, QDesktopWidget, QMainWindow, QAction, qApp,
+                             QHBoxLayout, QVBoxLayout, QWidget, QPlainTextEdit)
 from PyQt5.QtCore import QCoreApplication
-from PyQt5.QtGui import QIcon
-from PyQt5.QtGui import QFont
+from PyQt5.QtGui import (QIcon, QFont)
+
+from classes.Parser import Parser
 
 
 class MainForm(QWidget):
+    EXAMPLE_TEXT1 = "program: test123\nequation:\ntestvar = 1*2;"
+
     def __init__(self):
         super().__init__()
-
+        self.parser = Parser()
         self.initUI()
 
     def initUI(self):
         QToolTip.setFont(QFont('SansSerif', 10))
 
-        self.setToolTip('This is a <b>QWidget</b> widget')
+        self.label = QLabel()
+        self.label.setText('Сюда пишем текст:')
+        self.label.resize(self.label.sizeHint())
+        self.label.move(50, 30)
 
-        label = QLabel(self)
-        label.setText('Сюда пишем текст:')
-        label.move(50, 30)
+        self.txtEdit = QPlainTextEdit()
+        self.txtEdit.resize(700, 400)
+        self.txtEdit.move(50, 50)
+        self.txtEdit.setPlainText(self.EXAMPLE_TEXT1)
 
-        txtEdit = QTextEdit(self)
-        txtEdit.resize(400, 300)
-        txtEdit.move(50, 50)
+        self.btnParse = QPushButton('Parse')
+        self.btnParse.setToolTip('This is a <b>QPushButton</b> widget')
+        self.btnParse.resize(self.btnParse.sizeHint())
+        self.btnParse.move(50, 380)
+        self.btnParse.clicked.connect(self.parseStart)
 
-        btnParse = QPushButton('Parse', self)
-        btnParse.setToolTip('This is a <b>QPushButton</b> widget')
-        btnParse.resize(btnParse.sizeHint())
-        btnParse.move(50, 380)
-        btnParse.clicked.connect(QCoreApplication.instance().quit)
+        self.btn = QPushButton('Clear')
+        self.btn.setToolTip('This is a <b>QPushButton</b> widget')
+        self.btn.resize(self.btn.sizeHint())
+        self.btn.move(50, 420)
+        self.btn.clicked.connect(qApp.quit)
 
-        btn = QPushButton('Clear', self)
-        btn.setToolTip('This is a <b>QPushButton</b> widget')
-        btn.resize(btn.sizeHint())
-        btn.move(50, 420)
-        btn.clicked.connect(QCoreApplication.instance().quit)
+        vBox = QVBoxLayout()
+        vBox.addStretch(1)
+        vBox.addWidget(self.label)
+        vBox.addWidget(self.txtEdit)
+        vBox.addWidget(self.btnParse)
+        vBox.addWidget(self.btn)
 
-        self.setGeometry(300, 300, 700, 500)
+        self.setLayout(vBox)
+        self.resize(700, 400)
         self.setWindowTitle('Differential parser')
         self.setWindowIcon(QIcon('./images/icon.png'))
+
         self.show()
+
+    def center(self):
+
+        qr = self.frameGeometry()
+        cp = QDesktopWidget().availableGeometry().center()
+        qr.moveCenter(cp)
+        self.move(qr.topLeft())
+
+    def parseStart(self):
+        text = self.txtEdit.toPlainText()
+        self.parser.parse(text)
 
     def closeEvent(self, event):
 
