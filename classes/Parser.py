@@ -5,37 +5,17 @@
  Time: 22:04
 
 """
-import re
+import sys, traceback
+
+from classes.Integrator import Integrator
+from classes.ParserBase import ParserBase
 
 
-class Parser:
-    PROGRAM = 'program:'
-    METHOD = 'method:'
-    EQUATION = 'equation:'
-    LIMITATIONS = 'limitations:'
-    BEGIN_CONDITION = 'begin condition:'
-    SYMBOL_DIFF = 'dt'
+class Parser(ParserBase):
 
     def __init__(self) -> None:
         super().__init__()
-        self.text = ''
-        self.current_index = 0
-
-    def init(self):
-        self.current_index = 0
-        self.text = re.sub(r'[\n\r]', ' ', self.text)
-
-    def error(self, param):
-        txt = param + " Символ #" + str(self.current_index)
-        raise Exception(txt)
-
-    def passSpace(self):
-        while self.current_index < len(self.text):
-            if self.text[self.current_index] == ' ':
-                self.current_index += 1
-                continue
-            else:
-                break
+        self.integrator = Integrator()
 
     def parse(self, text):
         """
@@ -49,10 +29,12 @@ class Parser:
         try:
             self.program()
             self.equations()
-            self.method()
-            self.begin_condition()
+            self.begin_conditions()
+            self.integration_conditions()
         except Exception as e:
-            print(e.args[0])
+            traceback.print_exc(file=sys.stdout)
+            raise Exception(e.args[0], self.current_index, 2)
+        print(self.integrator)
 
     def program(self):
         """
@@ -60,26 +42,9 @@ class Parser:
         :return:
         """
         self.passSpace()
-        if self.text[self.current_index:self.current_index + len(self.PROGRAM)] != self.PROGRAM:
-            self.error("Ошибка. Ожидалось слово `" + self.PROGRAM + "`, а у вас написано `" +
-                       self.text[self.current_index:self.current_index + len(self.PROGRAM)] +
-                       "`")
-            return
-        self.current_index += len(self.PROGRAM)
-
-        if self.text[self.current_index] == ' ':
-            self.current_index += 1
-        else:
-            self.error("Нужен пробел.")
-            return
-
-        i = 0
-        while self.current_index < len(self.text):
-            if not self.readSymbol():
-                break
-            i += 1
-        if i == 0:
-            self.error("Ошибка. Ожидалось название программы.")
+        self.isNextWord(self.Program)
+        self.space()
+        self.programName()
 
     def equations(self):
         """
@@ -88,15 +53,12 @@ class Parser:
         """
 
         self.passSpace()
-        if self.text[self.current_index:self.current_index + len(self.EQUATION)] != self.EQUATION:
-            self.error("Ошибка. Ожидалось слово `" + self.EQUATION + "`, а у вас написано `" +
-                       self.text[self.current_index:self.current_index + len(self.EQUATION)] +
-                       "`")
-            return
-        self.current_index += len(self.EQUATION)
-        while (self.current_index < len(self.text) - len(self.METHOD)) and (
-                    self.text[self.current_index:self.current_index + len(self.METHOD)] != self.METHOD):
+        self.isNextWord(self.Equations)
+        while (self.current_index < len(self.text) - len(self.BeginConditions)) and (
+                    self.text[self.current_index:self.current_index + len(self.BeginConditions)]
+                    != self.BeginConditions):
             self.equation()
+            self.passSpace()
 
     def equation(self):
         """
@@ -104,30 +66,77 @@ class Parser:
         :return:
         """
         self.passSpace()
-        self.variable()
-        self.passSpace()
-        if self.text[self.current_index] == '=':
-            self.current_index += 1
-        else:
-            self.error("Нужен знак `=`.")
-            return
-        self.right_part()
-
-    def variable(self):
-        """
-        Считываем переменную
-        :return:
-        """
-        i = 0
-        while self.current_index < len(self.text):
-            if not self.readSymbol():
-                break
-            i += 1
-        if i < 3:
-            self.error("Ошибка (variable). Ожидалась переменная. Длина переменной 3+ символа.")
+        var = self.integrationVariable()
+        self.isNextWord("=")
+        block = self.right_part()
+        self.integrator.equations[var] = block
 
     def right_part(self):
-        pass
+        """
+        Правая часть уравнениея
+        :return:string
+        """
+        self.passSpace()
+        block = ""
+        if self.isNextWord("-", False):
+            block += "-"
+        while True:
+            block += self.additionBlock()
+            if self.isEOL():
+                self.current_index += 1
+                break
+            if self.isNextWord(")", False):
+                self.current_index -= 1
+                break
+        return block
+
+    def additionBlock(self):
+        """
+        Блок арифметического суммирования/вычитания
+        :return:string
+        """
+        add_block = self.multiplicationBlock()
+        while True:
+            if self.isNextWord("+", False):
+                add_block += " + " + self.multiplicationBlock()
+            elif self.isNextWord("-", False):
+                add_block += " - " + self.multiplicationBlock()
+            else:
+                break
+        return add_block
+
+    def multiplicationBlock(self):
+        """
+        Блок арифмитического умножения/деления
+        :return:string
+        """
+        block = self.varBlock()
+        while True:
+            if self.isNextWord("*", False):
+                block += " * " + self.varBlock()
+            elif self.isNextWord("/", False):
+                block += " / " + self.varBlock()
+            else:
+                break
+
+        return block
+
+    def varBlock(self):
+        """
+        Блок с переменной или числом
+        :return:string
+        """
+        block = ""
+        if self.isNextWord("(", False):
+            block += "("
+            block += str(self.right_part())
+            if self.isNextWord(")"):
+                block += ")"
+        elif self.isDigital():
+            block += str(self.Number())
+        else:
+            block += str(self.var())
+        return block
 
     def method(self):
         """
@@ -136,19 +145,67 @@ class Parser:
         """
         self.passSpace()
 
+    def begin_conditions(self):
+        self.isNextWord(self.BeginConditions)
+        while (self.current_index < len(self.text) - len(self.IntegrationConfitions)) and (
+                    self.text[self.current_index:self.current_index + len(self.IntegrationConfitions)]
+                    != self.IntegrationConfitions):
+            self.begin_condition()
+            if self.isEOL():
+                self.current_index += 1
+            self.passSpace()
+
     def begin_condition(self):
         """
         Блок с описанием начальных условий
         :return:
         """
+        var = self.var()
+        self.isNextWord("=")
+        value = self.Number()
+        self.integrator.begin_conditions[var] = value
         self.passSpace()
 
-    def readSymbol(self):
-        """
+    def integration_conditions(self):
+        self.isNextWord(self.IntegrationConfitions)
+        self.integration_method()
+        self.integration_var()
+        self.integration_var_step()
 
-        :return:
-        """
-        if re.match('[\w\d]+', self.text[self.current_index]) != None:
+    def integration_method(self):
+        self.isNextWord(self.IntegrationMethod)
+        self.isNextWord("=")
+        self.integration_method_name()
+        if self.isEOL():
             self.current_index += 1
-            return True
-        return False
+        else:
+            raise Exception("Ожидалась ';'")
+
+    def integration_method_name(self):
+        for method in Integrator.integration_methods:
+            if self.isNextWord(method, False):
+                self.integrator.integration_method = method
+                return method
+        raise Exception("Неизвестный метод интегрирования. Укажите один из следующих:" + str(Integrator.integration_methods))
+
+
+    def integration_var(self):
+        self.isNextWord(self.IntegrationVar)
+        self.isNextWord("=")
+        value = self.Number()
+        self.integrator.integration_var_value = value
+        if self.isEOL():
+            self.current_index += 1
+        else:
+            raise Exception("Ожидалась ';'")
+
+    def integration_var_step(self):
+        self.isNextWord(self.IntegrationVarStep)
+        self.isNextWord("=")
+        value = self.Number()
+        self.integrator.integration_var_step_value = value
+        if self.isEOL():
+            self.current_index += 1
+        else:
+            raise Exception("Ожидалась ';'")
+
