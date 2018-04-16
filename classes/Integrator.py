@@ -20,5 +20,16 @@ class Integrator:
 
     def __init__(self) -> None:
         super().__init__()
+        self.equations = dict()
+        self.begin_conditions = dict()
+        self.integration_method = None
+        self.integration_var_value = 0
+        self.integration_var_step_value = 0
+
+    def __str__(self) -> str:
+        return "equations: " + str(self.equations) + "\nbegin_conditions: " + str(self.begin_conditions) \
+               + "\nintegration_method: " + str(self.integration_method) + "\n" \
+               + "\nintegration_var_value: " + str(self.integration_var_value) + "\n" \
+               + "\nintegration_var_step_value: " + str(self.integration_var_step_value)
 
 

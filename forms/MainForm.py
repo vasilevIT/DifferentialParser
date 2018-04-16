@@ -116,6 +116,5 @@ dt = 0.5;
             cursor = self.txtEdit.textCursor()
             cursor.setPosition(e.args[1])
             self.txtEdit.setTextCursor(cursor)
-
     def closeEvent(self, event):
         event.accept()

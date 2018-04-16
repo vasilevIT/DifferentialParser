@@ -12,6 +12,11 @@ from classes.ParserBase import ParserBase
 
 
 class Parser(ParserBase):
+
+    def __init__(self) -> None:
+        super().__init__()
+        self.integrator = Integrator()
+
     def parse(self, text):
         """
         Парсит входящую строку
@@ -29,6 +34,7 @@ class Parser(ParserBase):
         except Exception as e:
             traceback.print_exc(file=sys.stdout)
             raise Exception(e.args[0], self.current_index, 2)
+        print(self.integrator)
 
     def program(self):
         """
@@ -63,8 +69,7 @@ class Parser(ParserBase):
         var = self.integrationVariable()
         self.isNextWord("=")
         block = self.right_part()
-
-        print(var + " = " + block)
+        self.integrator.equations[var] = block
 
     def right_part(self):
         """
@@ -140,24 +145,26 @@ class Parser(ParserBase):
         """
         self.passSpace()
 
-    def begin_condition(self):
-        """
-        Блок с описанием начальных условий
-        :return:
-        """
-        self.passSpace()
-
     def begin_conditions(self):
         self.isNextWord(self.BeginConditions)
         while (self.current_index < len(self.text) - len(self.IntegrationConfitions)) and (
                     self.text[self.current_index:self.current_index + len(self.IntegrationConfitions)]
                     != self.IntegrationConfitions):
-            self.var()
-            self.isNextWord("=")
-            self.Number()
+            self.begin_condition()
             if self.isEOL():
                 self.current_index += 1
             self.passSpace()
+
+    def begin_condition(self):
+        """
+        Блок с описанием начальных условий
+        :return:
+        """
+        var = self.var()
+        self.isNextWord("=")
+        value = self.Number()
+        self.integrator.begin_conditions[var] = value
+        self.passSpace()
 
     def integration_conditions(self):
         self.isNextWord(self.IntegrationConfitions)
@@ -177,6 +184,7 @@ class Parser(ParserBase):
     def integration_method_name(self):
         for method in Integrator.integration_methods:
             if self.isNextWord(method, False):
+                self.integrator.integration_method = method
                 return method
         raise Exception("Неизвестный метод интегрирования. Укажите один из следующих:" + str(Integrator.integration_methods))
 
@@ -184,7 +192,8 @@ class Parser(ParserBase):
     def integration_var(self):
         self.isNextWord(self.IntegrationVar)
         self.isNextWord("=")
-        self.Number()
+        value = self.Number()
+        self.integrator.integration_var_value = value
         if self.isEOL():
             self.current_index += 1
         else:
@@ -193,7 +202,8 @@ class Parser(ParserBase):
     def integration_var_step(self):
         self.isNextWord(self.IntegrationVarStep)
         self.isNextWord("=")
-        self.Number()
+        value = self.Number()
+        self.integrator.integration_var_step_value = value
         if self.isEOL():
             self.current_index += 1
         else:
