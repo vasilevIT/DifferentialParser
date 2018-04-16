@@ -9,11 +9,10 @@ import re
 
 
 class Parser:
-    PROGRAM = 'program:'
-    METHOD = 'method:'
-    EQUATION = 'equation:'
-    LIMITATIONS = 'limitations:'
-    BEGIN_CONDITION = 'begin condition:'
+    Program = 'Program:'
+    Equations = 'Equations:'
+    BeginConditions = 'BeginConditions:'
+    IntegrationConfitions = 'BeginConditions:'
     SYMBOL_DIFF = 'dt'
 
     def __init__(self) -> None:
@@ -37,6 +36,16 @@ class Parser:
             else:
                 break
 
+    def isNextWord(self, word):
+        self.passSpace()
+        if self.text[self.current_index:self.current_index + len(word)] != word:
+            self.error("Ошибка. Ожидалось слово `" + word + "`, а у вас написано `" +
+                       self.text[self.current_index:self.current_index + len(word)] +
+                       "`")
+            raise Exception(self.error())
+        self.current_index += len(self.Program)
+        return True
+
     def parse(self, text):
         """
         Парсит входящую строку
@@ -49,8 +58,8 @@ class Parser:
         try:
             self.program()
             self.equations()
-            self.method()
-            self.begin_condition()
+            self.begin_conditions()
+            self.integration_conditions()
         except Exception as e:
             print(e.args[0])
 
@@ -60,26 +69,9 @@ class Parser:
         :return:
         """
         self.passSpace()
-        if self.text[self.current_index:self.current_index + len(self.PROGRAM)] != self.PROGRAM:
-            self.error("Ошибка. Ожидалось слово `" + self.PROGRAM + "`, а у вас написано `" +
-                       self.text[self.current_index:self.current_index + len(self.PROGRAM)] +
-                       "`")
-            return
-        self.current_index += len(self.PROGRAM)
-
-        if self.text[self.current_index] == ' ':
-            self.current_index += 1
-        else:
-            self.error("Нужен пробел.")
-            return
-
-        i = 0
-        while self.current_index < len(self.text):
-            if not self.readSymbol():
-                break
-            i += 1
-        if i == 0:
-            self.error("Ошибка. Ожидалось название программы.")
+        self.isNextWord(self.Program)
+        self.space()
+        self.var()
 
     def equations(self):
         """
@@ -88,14 +80,10 @@ class Parser:
         """
 
         self.passSpace()
-        if self.text[self.current_index:self.current_index + len(self.EQUATION)] != self.EQUATION:
-            self.error("Ошибка. Ожидалось слово `" + self.EQUATION + "`, а у вас написано `" +
-                       self.text[self.current_index:self.current_index + len(self.EQUATION)] +
-                       "`")
-            return
-        self.current_index += len(self.EQUATION)
-        while (self.current_index < len(self.text) - len(self.METHOD)) and (
-                    self.text[self.current_index:self.current_index + len(self.METHOD)] != self.METHOD):
+        self.isNextWord(self.Equations)
+        while (self.current_index < len(self.text) - len(self.IntegrationConfitions)) and (
+                    self.text[self.current_index:self.current_index + len(self.IntegrationConfitions)]
+                    != self.IntegrationConfitions):
             self.equation()
 
     def equation(self):
@@ -148,7 +136,32 @@ class Parser:
 
         :return:
         """
-        if re.match('[\w\d]+', self.text[self.current_index]) != None:
+        if re.match('[\w\d\_\.]+', self.text[self.current_index]) != None:
             self.current_index += 1
             return True
         return False
+
+    def begin_conditions(self):
+        pass
+
+    def integration_conditions(self):
+        pass
+
+    def space(self):
+        if self.text[self.current_index] == ' ':
+            self.current_index += 1
+            return True
+
+        self.error("Нужен пробел.")
+        raise Exception(self.error())
+
+    def var(self):
+        i = 0
+        while self.current_index < len(self.text):
+            if not self.readSymbol():
+                break
+            i += 1
+        if i == 0:
+            self.error("Ошибка. Ожидалось название программы.")
+            raise Exception(self.error())
+        return True

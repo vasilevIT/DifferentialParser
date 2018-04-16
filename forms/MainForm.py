@@ -7,16 +7,35 @@
 """
 
 from PyQt5.QtWidgets import (QToolTip,
-                             QPushButton, QTextEdit, QLabel, QMessageBox, QDesktopWidget, QMainWindow, QAction, qApp,
-                             QHBoxLayout, QVBoxLayout, QWidget, QPlainTextEdit)
-from PyQt5.QtCore import QCoreApplication
+                             QPushButton, QTextEdit, QLabel, QMessageBox, QDesktopWidget, qApp,
+                             QVBoxLayout, QWidget)
 from PyQt5.QtGui import (QIcon, QFont)
 
 from classes.Parser import Parser
 
 
 class MainForm(QWidget):
-    EXAMPLE_TEXT1 = "program: <span style=\"font-weight:600; color:#FF0000;\" >test123</span>\nequation:\ntestvar = 1*2;"
+    EXAMPLE_TEXT1 = """
+    program DiffSolv1.0
+
+Equations:
+Susc/dt = -A * Susc * Sick
+Sick/dt = A * Susk * Sick - (B + C) * Sick
+Cured/dt = B * Sick
+
+BeginConditions:
+Susk = 620
+Sick = 10
+Cured = 70
+A = 000.1
+B = 0.07
+C = 0.01
+
+IntegrationConfitions:
+method = Euler
+t = 50
+dt = 0.5
+"""
 
     def __init__(self):
         super().__init__()
