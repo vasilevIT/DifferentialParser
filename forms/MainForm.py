@@ -20,11 +20,11 @@ Program: DiffSolv1.0
 
 Equations:
 Susc/dt = -A * Susc * Sick;
-Sick/dt = A * Susk * Sick - (B + C) * Sick;
+Sick/dt = A * Susc * Sick - (B + C) * Sick;
 Cured/dt = B * Sick;
 
 BeginConditions:
-Susk = 620;
+Susc = 620;
 Sick = 10;
 Cured = 70;
 A = 000.1;
@@ -116,5 +116,7 @@ dt = 0.5;
             cursor = self.txtEdit.textCursor()
             cursor.setPosition(e.args[1])
             self.txtEdit.setTextCursor(cursor)
+        self.parser.integrator.euler()
+
     def closeEvent(self, event):
         event.accept()
