@@ -16,7 +16,7 @@ from classes.Parser import Parser
 
 
 class MainForm(QWidget):
-    EXAMPLE_TEXT1 = "program: test123\nequation:\ntestvar = 1*2;"
+    EXAMPLE_TEXT1 = "program: <span style=\"font-weight:600; color:#FF0000;\" >test123</span>\nequation:\ntestvar = 1*2;"
 
     def __init__(self):
         super().__init__()
@@ -31,10 +31,10 @@ class MainForm(QWidget):
         self.label.resize(self.label.sizeHint())
         self.label.move(50, 30)
 
-        self.txtEdit = QPlainTextEdit()
+        self.txtEdit = QTextEdit()
         self.txtEdit.resize(700, 400)
         self.txtEdit.move(50, 50)
-        self.txtEdit.setPlainText(self.EXAMPLE_TEXT1)
+        self.txtEdit.setText(self.EXAMPLE_TEXT1)
 
         self.btnParse = QPushButton('Parse')
         self.btnParse.setToolTip('This is a <b>QPushButton</b> widget')
