@@ -9,32 +9,32 @@
 from PyQt5.QtWidgets import (QToolTip,
                              QPushButton, QTextEdit, QLabel, QMessageBox, QDesktopWidget, qApp,
                              QVBoxLayout, QWidget)
-from PyQt5.QtGui import (QIcon, QFont)
+from PyQt5.QtGui import (QIcon, QFont, QTextCursor)
 
 from classes.Parser import Parser
 
 
 class MainForm(QWidget):
     EXAMPLE_TEXT1 = """
-    program DiffSolv1.0
+Program: DiffSolv1.0
 
 Equations:
-Susc/dt = -A * Susc * Sick
-Sick/dt = A * Susk * Sick - (B + C) * Sick
-Cured/dt = B * Sick
+Susc/dt = -A * Susc * Sick;
+Sick/dt = A * Susk * Sick - (B + C) * Sick;
+Cured/dt = B * Sick;
 
 BeginConditions:
-Susk = 620
-Sick = 10
-Cured = 70
-A = 000.1
-B = 0.07
-C = 0.01
+Susk = 620;
+Sick = 10;
+Cured = 70;
+A = 000.1;
+B = 0.07;
+C = 0.01;
 
-IntegrationConfitions:
-method = Euler
-t = 50
-dt = 0.5
+IntegrationConditions:
+method = Euler;
+t = 50;
+dt = 0.5;
 """
 
     def __init__(self):
@@ -65,7 +65,11 @@ dt = 0.5
         self.btn.setToolTip('This is a <b>QPushButton</b> widget')
         self.btn.resize(self.btn.sizeHint())
         self.btn.move(50, 420)
-        self.btn.clicked.connect(qApp.quit)
+        self.btn.clicked.connect(self.clear)
+
+        self.error = QLabel()
+        self.error.resize(self.error.sizeHint())
+        self.error.move(50, 480)
 
         vBox = QVBoxLayout()
         vBox.addStretch(1)
@@ -73,6 +77,7 @@ dt = 0.5
         vBox.addWidget(self.txtEdit)
         vBox.addWidget(self.btnParse)
         vBox.addWidget(self.btn)
+        vBox.addWidget(self.error)
 
         self.setLayout(vBox)
         self.resize(700, 400)
@@ -88,17 +93,29 @@ dt = 0.5
         qr.moveCenter(cp)
         self.move(qr.topLeft())
 
+    def clear(self):
+        self.txtEdit.setText("")
+        self.error.setText("")
+
     def parseStart(self):
         text = self.txtEdit.toPlainText()
-        self.parser.parse(text)
+        self.txtEdit.setText(text)
+        self.error.setText("")
+        try:
+            self.parser.parse(text)
+        except Exception as e:
+            text = self.txtEdit.toPlainText()
+            self.error.setText(e.args[0])
+            text = text[0:(e.args[1])] \
+                   + "<span style=\"font-weight:600; color:#FF0000;\" >" \
+                   + text[e.args[1]:(e.args[1] + e.args[2])] \
+                   + "</span>" \
+                   + text[e.args[1] + e.args[2]:]
+            text = text.replace("\n", "<br>")
+            self.txtEdit.setHtml(text)
+            cursor = self.txtEdit.textCursor()
+            cursor.setPosition(e.args[1])
+            self.txtEdit.setTextCursor(cursor)
 
     def closeEvent(self, event):
-
-        reply = QMessageBox.question(self, 'Message',
-                                     "Are you sure to quit?", QMessageBox.Yes |
-                                     QMessageBox.No, QMessageBox.No)
-
-        if reply == QMessageBox.Yes:
-            event.accept()
-        else:
-            event.ignore()
+        event.accept()
