@@ -26,4 +26,4 @@ class MathSolver:
             value = eval(equation)
             return value
         except Exception as e:
-            print("Не удалось решить уравнение. " + e.args[0])
+            raise Exception("Не удалось решить уравнение. " + e.args[0])

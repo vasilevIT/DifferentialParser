@@ -12,6 +12,7 @@ from PyQt5.QtWidgets import (QToolTip,
 from PyQt5.QtGui import (QIcon, QFont, QTextCursor)
 
 from classes.Parser import Parser
+from forms.ChartsForm import ChartsForm
 
 
 class MainForm(QWidget):
@@ -116,7 +117,11 @@ dt = 0.5;
             cursor = self.txtEdit.textCursor()
             cursor.setPosition(e.args[1])
             self.txtEdit.setTextCursor(cursor)
-        self.parser.integrator.euler()
+        try:
+            self.parser.integrator.euler()
+            chartForm = ChartsForm()
+        except Exception as e:
+            self.error.setText(e)
 
     def closeEvent(self, event):
         event.accept()
