@@ -46,6 +46,7 @@ class Integrator:
 
         result = dict()
         params = self.begin_conditions
+        # TODO поправить метод расчета.
         for t in np.arange(0, float(self.integration_var_value), float(self.integration_var_step_value)):
             result[t] = dict()
             for key, equation in self.equations.items():

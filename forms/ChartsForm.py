@@ -43,12 +43,12 @@ class ChartsForm(QDialog):
         self.label.resize(self.label.sizeHint())
         self.label.move(50, 10)
         self.chart = QChart()
-        self.chart.legend().hide()
+        # self.chart.legend().hide()
         self.set_title("График дифференциальных уравнений")
         self.view = QChartView(self.chart)
         self.view.setRenderHint(QPainter.Antialiasing)
-        self.view.move(500,300)
-        self.view.resize(400,250)
+        self.view.move(500, 300)
+        self.view.resize(400, 250)
 
         vBox = QVBoxLayout()
         vBox.addWidget(self.view)
@@ -57,12 +57,6 @@ class ChartsForm(QDialog):
         self.setLayout(vBox)
         self.resize(700, 450)
         self.setWindowTitle('Charts')
-
-        npoints = 1000000
-        xdata = np.linspace(0., 10., npoints)
-        self.add_data(xdata, np.sin(xdata))
-        self.add_data(xdata, np.cos(xdata))
-        self.exec_()
 
     def set_title(self, title):
         self.chart.setTitle(title)
@@ -79,3 +73,6 @@ class ChartsForm(QDialog):
         self.chart.addSeries(curve)
         self.chart.createDefaultAxes()
         self.ncurves += 1
+
+    def show(self):
+        self.exec_()

@@ -118,8 +118,19 @@ dt = 0.5;
             cursor.setPosition(e.args[1])
             self.txtEdit.setTextCursor(cursor)
         try:
-            self.parser.integrator.euler()
+            data = self.parser.integrator.euler()
+            data_clear = {}
+            for key, data_item in data.items():
+                for var, value in data_item.items():
+                    if var not in data_clear.keys():
+                        data_clear[var] = {}
+                    data_clear[var][key] = value
             chartForm = ChartsForm()
+            for key, data_items in data_clear.items():
+                data_keys = list(data_items )
+                data_values = list(data_items.values())
+                chartForm.add_data(data_keys, data_values)
+            chartForm.show()
         except Exception as e:
             self.error.setText(e)
 
