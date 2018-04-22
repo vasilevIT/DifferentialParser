@@ -12,6 +12,7 @@ from PyQt5.QtWidgets import (QToolTip,
 from PyQt5.QtGui import (QIcon, QFont, QTextCursor)
 
 from classes.Parser import Parser
+from forms.ChartsForm import ChartsForm
 
 
 class MainForm(QWidget):
@@ -20,11 +21,11 @@ Program: DiffSolv1.0
 
 Equations:
 Susc/dt = -A * Susc * Sick;
-Sick/dt = A * Susk * Sick - (B + C) * Sick;
+Sick/dt = A * Susc * Sick - (B + C) * Sick;
 Cured/dt = B * Sick;
 
 BeginConditions:
-Susk = 620;
+Susc = 620;
 Sick = 10;
 Cured = 70;
 A = 000.1;
@@ -116,5 +117,22 @@ dt = 0.5;
             cursor = self.txtEdit.textCursor()
             cursor.setPosition(e.args[1])
             self.txtEdit.setTextCursor(cursor)
+        try:
+            data = self.parser.integrator.euler()
+            data_clear = {}
+            for key, data_item in data.items():
+                for var, value in data_item.items():
+                    if var not in data_clear.keys():
+                        data_clear[var] = {}
+                    data_clear[var][key] = value
+            chartForm = ChartsForm()
+            for key, data_items in data_clear.items():
+                data_keys = list(data_items )
+                data_values = list(data_items.values())
+                chartForm.add_data(data_keys, data_values)
+            chartForm.show()
+        except Exception as e:
+            self.error.setText(e)
+
     def closeEvent(self, event):
         event.accept()
