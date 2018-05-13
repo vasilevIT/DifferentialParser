@@ -28,7 +28,7 @@ BeginConditions:
 Susc = 620;
 Sick = 10;
 Cured = 70;
-A = 000.1;
+A = 0.001;
 B = 0.07;
 C = 0.01;
 
@@ -117,6 +117,7 @@ dt = 0.5;
             cursor = self.txtEdit.textCursor()
             cursor.setPosition(e.args[1])
             self.txtEdit.setTextCursor(cursor)
+            return
         try:
             data = self.parser.integrator.euler()
             data_clear = {}
@@ -127,7 +128,7 @@ dt = 0.5;
                     data_clear[var][key] = value
             chartForm = ChartsForm()
             for key, data_items in data_clear.items():
-                data_keys = list(data_items )
+                data_keys = list(data_items)
                 data_values = list(data_items.values())
                 chartForm.add_data(data_keys, data_values)
             chartForm.show()

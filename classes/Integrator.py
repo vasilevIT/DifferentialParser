@@ -46,14 +46,20 @@ class Integrator:
 
         result = dict()
         params = self.begin_conditions
-        # TODO поправить метод расчета.
-        for t in np.arange(0, float(self.integration_var_value), float(self.integration_var_step_value)):
+        result[0] = dict()
+        for key, equation in self.equations.items():
+            integration_var = key.replace("/dt", "")
+            init_value = params[integration_var]
+            result[0][key] = init_value
+
+        for t in np.arange(1, float(self.integration_var_value) + float(self.integration_var_step_value), float(self.integration_var_step_value)):
             result[t] = dict()
             for key, equation in self.equations.items():
                 equation_value = MathSolver.solv(equation, params)
+                integration_var = key.replace("/dt", "")
+                equation_value = float(params[integration_var]) + equation_value
                 result[t][key] = equation_value
-                params[key] = equation_value
-        print(result)
+                params[integration_var] = equation_value
         return result
 
     def modify_euler(self):
