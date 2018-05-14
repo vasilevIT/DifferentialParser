@@ -7,9 +7,7 @@
 """
 
 import sys
-
 from PyQt5.QtWidgets import QApplication
-
 from forms.MainForm import MainForm
 
 if __name__ == '__main__':

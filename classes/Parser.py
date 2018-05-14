@@ -167,12 +167,20 @@ class Parser(ParserBase):
         self.passSpace()
 
     def integration_conditions(self):
+        """
+        Условия интегрирования
+        :return:
+        """
         self.isNextWord(self.IntegrationConfitions)
         self.integration_method()
         self.integration_var()
         self.integration_var_step()
 
     def integration_method(self):
+        """
+        Метод интегрирования
+        :return:
+        """
         self.isNextWord(self.IntegrationMethod)
         self.isNextWord("=")
         self.integration_method_name()
@@ -182,6 +190,10 @@ class Parser(ParserBase):
             raise Exception("Ожидалась ';'")
 
     def integration_method_name(self):
+        """
+        Название метода интегрирования
+        :return:
+        """
         for method in Integrator.integration_methods:
             if self.isNextWord(method, False):
                 self.integrator.integration_method = method
@@ -190,6 +202,10 @@ class Parser(ParserBase):
 
 
     def integration_var(self):
+        """
+        Переменная интегрирования
+        :return:
+        """
         self.isNextWord(self.IntegrationVar)
         self.isNextWord("=")
         value = self.Number()
@@ -200,6 +216,10 @@ class Parser(ParserBase):
             raise Exception("Ожидалась ';'")
 
     def integration_var_step(self):
+        """
+        Шаг интегрирования
+        :return:
+        """
         self.isNextWord(self.IntegrationVarStep)
         self.isNextWord("=")
         value = self.Number()
