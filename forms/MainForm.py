@@ -16,8 +16,7 @@ from forms.ChartsForm import ChartsForm
 
 
 class MainForm(QWidget):
-    EXAMPLE_TEXT1 = """
-Program: DiffSolv1.0
+    EXAMPLE_TEXT1 = """Program: DiffSolv1.0
 
 Equations:
 Susc/dt = -A * Susc * Sick;
@@ -132,9 +131,10 @@ dt = 0.5;
                 data_keys = list(data_items)
                 data_values = list(data_items.values())
                 chartForm.add_data(data_keys, data_values, None, key)
+            chartForm.set_integration_method("Метод интегрирования: " + self.parser.integrator.integration_method + "\nШаг интегрирования: " + str(self.parser.integrator.integration_var_step_value) + "\nИнтервал интегрирования: " + str(self.parser.integrator.integration_var_value))
             chartForm.show()
         except Exception as e:
-            self.error.setText(e)
+            self.error.setText(e.__str__())
 
     def closeEvent(self, event):
         event.accept()

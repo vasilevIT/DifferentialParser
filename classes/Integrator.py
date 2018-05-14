@@ -111,6 +111,7 @@ class Integrator:
         :return:dict
         """
 
+        raise Exception("Метода Рунге-Кутта еще не реализован")
         result = dict()
         params = self.begin_conditions
         result[0] = dict()

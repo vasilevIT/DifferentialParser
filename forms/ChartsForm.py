@@ -35,6 +35,15 @@ class ChartsForm(QDialog):
         super().__init__()
         self.initUI()
 
+        self.colors = list()
+        self.colors.append(QColor("black"))
+        self.colors.append(QColor("red"))
+        self.colors.append(QColor("blue"))
+        self.colors.append(QColor("green"))
+        self.colors.append(QColor("yellow"))
+        self.colors.append(QColor("orange"))
+        self.colors.append(QColor("violet"))
+
     def initUI(self):
         self.ncurves = 0
 
@@ -42,6 +51,11 @@ class ChartsForm(QDialog):
         self.label.setText("Графики.")
         self.label.resize(self.label.sizeHint())
         self.label.move(50, 10)
+
+        self.label_integration_method = QLabel()
+        self.label_integration_method.setText("")
+        self.label_integration_method.resize(self.label_integration_method.sizeHint())
+        self.label_integration_method.move(10, 10)
 
         self.label_summary = QLabel()
         self.label_summary.setText("")
@@ -60,6 +74,7 @@ class ChartsForm(QDialog):
         vBox.addWidget(self.view)
         vBox.addWidget(self.label)
         vBox.addWidget(self.label_summary)
+        vBox.addWidget(self.label_integration_method)
 
         self.setLayout(vBox)
         self.resize(700, 450)
@@ -72,6 +87,9 @@ class ChartsForm(QDialog):
         :return:
         """
         self.chart.setTitle(title)
+
+    def set_integration_method(self, text):
+        self.label_integration_method.setText(text)
 
     def add_data(self, xdata, ydata, color=None, curve_name="None"):
         """
@@ -108,16 +126,10 @@ class ChartsForm(QDialog):
         Возвращает случайный цвет из списка
         :return:
         """
-        colors = {}
-        colors[0] = QColor("black")
-        colors[1] = QColor("red")
-        colors[2] = QColor("blue")
-        colors[3] = QColor("green")
-        colors[4] = QColor("yellow")
-        colors[5] = QColor("orange")
-        colors[6] = QColor("violet")
-        index = random.randint(0, 6)
-        return colors[index]
+        if self.colors.count() > 0:
+            return self.colors.pop()
+        else:
+            return QColor("black")
 
     def show(self):
         self.exec_()
