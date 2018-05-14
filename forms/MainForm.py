@@ -119,7 +119,8 @@ dt = 0.5;
             self.txtEdit.setTextCursor(cursor)
             return
         try:
-            data = self.parser.integrator.modify_euler()
+            data = self.parser.integrator.run()
+
             data_clear = {}
             for key, data_item in data.items():
                 for var, value in data_item.items():

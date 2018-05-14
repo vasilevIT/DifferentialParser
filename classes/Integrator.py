@@ -38,6 +38,20 @@ class Integrator:
                + "\nintegration_var_value: " + str(self.integration_var_value) + "\n" \
                + "\nintegration_var_step_value: " + str(self.integration_var_step_value)
 
+    def run(self):
+        if self.integration_method == 'Euler':
+            return self.euler()
+        elif self.integration_method == 'Modify-Euler':
+            return self.modify_euler()
+        elif self.integration_method == 'Runge-Kutti-1':
+            return self.runge_kutti(1)
+        elif self.integration_method == 'Runge-Kutti-2':
+            return self.runge_kutti(2)
+        elif self.integration_method == 'Runge-Kutti-3':
+            return self.runge_kutti(3)
+        elif self.integration_method == 'Runge-Kutti-4':
+            return self.runge_kutti(4)
+
     def euler(self):
         """
         Метод численного интегрирования Эйлера
@@ -52,7 +66,8 @@ class Integrator:
             init_value = params[integration_var]
             result[0][key] = float(init_value)
 
-        for t in np.arange(1, float(self.integration_var_value) + float(self.integration_var_step_value), float(self.integration_var_step_value)):
+        for t in np.arange(1, float(self.integration_var_value) + float(self.integration_var_step_value),
+                           float(self.integration_var_step_value)):
             result[t] = dict()
             for key, equation in self.equations.items():
                 equation_value = MathSolver.solv(equation, params)
@@ -75,7 +90,8 @@ class Integrator:
             init_value = params[integration_var]
             result[0][key] = float(init_value)
 
-        for t in np.arange(1, float(self.integration_var_value) + float(self.integration_var_step_value), float(self.integration_var_step_value)):
+        for t in np.arange(1, float(self.integration_var_value) + float(self.integration_var_step_value),
+                           float(self.integration_var_step_value)):
             result[t] = dict()
             for key, equation in self.equations.items():
                 integration_var = key.replace("/dt", "")
@@ -94,4 +110,21 @@ class Integrator:
         Метод численного интегрирования Рунге-Кутты n-го порядка
         :return:dict
         """
-        pass
+
+        result = dict()
+        params = self.begin_conditions
+        result[0] = dict()
+        for key, equation in self.equations.items():
+            integration_var = key.replace("/dt", "")
+            init_value = params[integration_var]
+            result[0][key] = float(init_value)
+
+        if n == 1:
+            pass
+        elif n == 2:
+            pass
+        elif n == 3:
+            pass
+        elif n == 4:
+            pass
+        raise Exception("Неизвестная степень метода Рунге-Кутта")
