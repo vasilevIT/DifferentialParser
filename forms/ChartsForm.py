@@ -5,10 +5,10 @@
  Time: 23:54
 
 """
-from PyQt5 import Qt
+import random
 
-from PyQt5.QtGui import QPainter, QPolygonF
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLabel, QDialog
+from PyQt5.QtGui import QPainter, QPolygonF, QPen, QColor
+from PyQt5.QtWidgets import QVBoxLayout, QLabel, QDialog
 
 from PyQt5.QtChart import QChart, QChartView, QLineSeries
 import numpy as np
@@ -42,6 +42,12 @@ class ChartsForm(QDialog):
         self.label.setText("Графики.")
         self.label.resize(self.label.sizeHint())
         self.label.move(50, 10)
+
+        self.label_summary = QLabel()
+        self.label_summary.setText("")
+        self.label_summary.resize(self.label_summary.sizeHint())
+        self.label_summary.move(10, 10)
+
         self.chart = QChart()
         # self.chart.legend().hide()
         self.set_title("График дифференциальных уравнений")
@@ -53,26 +59,65 @@ class ChartsForm(QDialog):
         vBox = QVBoxLayout()
         vBox.addWidget(self.view)
         vBox.addWidget(self.label)
+        vBox.addWidget(self.label_summary)
 
         self.setLayout(vBox)
         self.resize(700, 450)
         self.setWindowTitle('Charts')
 
     def set_title(self, title):
+        """
+        Устанавливает титул в график
+        :param title:
+        :return:
+        """
         self.chart.setTitle(title)
 
-    def add_data(self, xdata, ydata, color=None):
+    def add_data(self, xdata, ydata, color=None, curve_name="None"):
+        """
+        Добавляет новую функцию на график
+        :param xdata:
+        :param ydata:
+        :param color:
+        :param curve_name:
+        :return:
+        """
         curve = QLineSeries()
         pen = curve.pen()
         if color is not None:
+            if isinstance(color, str):
+                color = QColor(color)
             pen.setColor(color)
+            pen.setColor(color)
+        else:
+            pen.setColor(self.getRandomColor())
         pen.setWidthF(.1)
         curve.setPen(pen)
+        curve.setName(curve_name)
         curve.setUseOpenGL(True)
         curve.append(series_to_polyline(xdata, ydata))
         self.chart.addSeries(curve)
         self.chart.createDefaultAxes()
         self.ncurves += 1
+        print(ydata)
+        summary_value = np.sum(ydata)
+        self.label_summary.setText(self.label_summary.text() + curve_name + " = " + str(summary_value) + "\n")
+
+    def getRandomColor(self):
+        """
+        Возвращает случайный цвет из списка
+        :return:
+        """
+        colors = {}
+        colors[0] = QColor("black")
+        colors[1] = QColor("red")
+        colors[2] = QColor("blue")
+        colors[3] = QColor("green")
+        colors[4] = QColor("yellow")
+        colors[5] = QColor("orange")
+        colors[6] = QColor("violet")
+        index = random.randint(0, 6)
+        return colors[index]
 
     def show(self):
         self.exec_()

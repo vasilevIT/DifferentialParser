@@ -50,7 +50,7 @@ class Integrator:
         for key, equation in self.equations.items():
             integration_var = key.replace("/dt", "")
             init_value = params[integration_var]
-            result[0][key] = init_value
+            result[0][key] = float(init_value)
 
         for t in np.arange(1, float(self.integration_var_value) + float(self.integration_var_step_value), float(self.integration_var_step_value)):
             result[t] = dict()
@@ -67,7 +67,27 @@ class Integrator:
         Метод численного интегрирования Эйлера, модифицированный
         :return:dict
         """
-        pass
+        result = dict()
+        params = self.begin_conditions
+        result[0] = dict()
+        for key, equation in self.equations.items():
+            integration_var = key.replace("/dt", "")
+            init_value = params[integration_var]
+            result[0][key] = float(init_value)
+
+        for t in np.arange(1, float(self.integration_var_value) + float(self.integration_var_step_value), float(self.integration_var_step_value)):
+            result[t] = dict()
+            for key, equation in self.equations.items():
+                integration_var = key.replace("/dt", "")
+                params_temp = params.copy()
+                A_equation_value = MathSolver.solv(equation, params_temp)
+                equation_value = float(params_temp[integration_var]) + float(A_equation_value)
+                params_temp[integration_var] = equation_value
+                B_equation_value = MathSolver.solv(equation, params_temp)
+                equation_value = float(params[integration_var]) + 0.5 * (A_equation_value + B_equation_value)
+                result[t][key] = equation_value
+                params[integration_var] = equation_value
+        return result
 
     def runge_kutti(self, n=1):
         """

@@ -119,7 +119,7 @@ dt = 0.5;
             self.txtEdit.setTextCursor(cursor)
             return
         try:
-            data = self.parser.integrator.euler()
+            data = self.parser.integrator.modify_euler()
             data_clear = {}
             for key, data_item in data.items():
                 for var, value in data_item.items():
@@ -130,7 +130,7 @@ dt = 0.5;
             for key, data_items in data_clear.items():
                 data_keys = list(data_items)
                 data_values = list(data_items.values())
-                chartForm.add_data(data_keys, data_values)
+                chartForm.add_data(data_keys, data_values, None, key)
             chartForm.show()
         except Exception as e:
             self.error.setText(e)
