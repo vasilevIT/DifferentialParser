@@ -7,6 +7,7 @@
 """
 
 import numpy as np
+import copy
 
 from classes.MathSolver import MathSolver
 
@@ -72,7 +73,8 @@ class Integrator:
             for key, equation in self.equations.items():
                 equation_value = MathSolver.solv(equation, params)
                 integration_var = key.replace("/dt", "")
-                equation_value = float(params[integration_var]) + (float(self.integration_var_step_value) * equation_value)
+                equation_value = float(params[integration_var]) + (
+                    float(self.integration_var_step_value) * equation_value)
                 result[t][key] = equation_value
                 params[integration_var] = equation_value
         return result
@@ -82,6 +84,7 @@ class Integrator:
         Метод численного интегрирования Эйлера, модифицированный
         :return:dict
         """
+
         result = dict()
         params = self.begin_conditions
         result[0] = dict()
@@ -94,15 +97,19 @@ class Integrator:
                            float(self.integration_var_step_value)):
             result[t] = dict()
             for key, equation in self.equations.items():
+                params_temp = copy.deepcopy(params)
+                # 1
+                equation_value_1 = MathSolver.solv(equation, params_temp)
                 integration_var = key.replace("/dt", "")
-                params_temp = params.copy()
-                A_equation_value = MathSolver.solv(equation, params_temp)
-                equation_value = float(params_temp[integration_var]) + float(A_equation_value)
+                equation_value = float(params_temp[integration_var]) + equation_value_1
                 params_temp[integration_var] = equation_value
-                B_equation_value = MathSolver.solv(equation, params_temp)
-                equation_value = float(params[integration_var]) + 0.5 * (A_equation_value + B_equation_value)
+                # 2
+                equation_value_2 = MathSolver.solv(equation, params_temp)
+                # result value
+                equation_value = float(params[integration_var]) + 0.5 * float(self.integration_var_step_value) * (equation_value_1 + equation_value_2)
                 result[t][key] = equation_value
                 params[integration_var] = equation_value
+
         return result
 
     def runge_kutti(self, n=1):
