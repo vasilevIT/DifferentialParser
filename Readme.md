@@ -1,5 +1,5 @@
 # Курсовая работа по предмету "Корягин 2.0"
-#### Version 0.2.0
+#### Version 0.3.0
 Реализован парсинг текста и анализ синтаксических ошибок.
 ## Задание
 1. Написать парсер дифференциальных уравнений   
@@ -32,17 +32,18 @@ Equations = "Equations" ":" Equation ... Equation
 BeginConditions = "BeginConditions" ":" BeginContition ... BeginCondition
 IntegrationConfitions = "IntegrationConfitions" ":"  IntegrationConfition
 
-Equation = IntegrationVar "=" RightBlock
+Equation = IntegrationVar "=" RightBlock ";"
 RightBlock = </ "-" /> AdditionBlock ("+" ! "-") ... AdditionBlock
 AdditionBlock = MultiplicationBlock ("*" ! "/") ... MultiplicationBlock 
-MultiplicationBlock = Var ! Number ! "(" RightBlock ")"
+MultiplicationBlock = DegreeBlock "^" ... DegreeBlock
+DegreeBlock = Var ! Number ! "(" RightBlock ")"
 
-BeginContition = Var "=" Number
+BeginContition = Var "=" Number ";"
 
 IntegrationConfition = IntegrationConfitionMethod IntegrationConfitionPeriod IntegrationConfitionStep
-IntegrationConfitionMethod = "method" "=" ("Euler" ! "Runge-Kutti-1" ! "Runge-Kutti-2" ! ... ! "Runge-Kutti-4")
-IntegrationConfitionPeriod = "t" "=" Number
-IntegrationConfitionStep = "dt" "=" Number
+IntegrationConfitionMethod = "method" "=" ("Euler" ! "Runge-Kutti-1" ! "Runge-Kutti-2" ! ... ! "Runge-Kutti-4") ";"
+IntegrationConfitionPeriod = "t" "=" Number ";"
+IntegrationConfitionStep = "dt" "=" Number ";"
 
 IntegrationVar = Var "/dt"
 Var = Symbol ... Symbol
@@ -61,21 +62,21 @@ Digit = 0 ! 1 ! ... ! 9
 program DiffSolv1.0
 
 Equations:
-Susc/dt = -A * Susc * Sick
-Sick/dt = A * Susk * Sick - (B + C) * Sick
-Cured/dt = B * Sick
+Susc/dt = -A * Susc * Sick;
+Sick/dt = A * Susk * Sick - (B + C) * Sick;
+Cured/dt = B * Sick;
 
 BeginConditions:
-Susk = 620
-Sick = 10
-Cured = 70
-A = 000.1
-B = 0.07
-C = 0.01
+Susk = 620;
+Sick = 10;
+Cured = 70;
+A = 000.1;
+B = 0.07;
+C = 0.01;
 
 IntegrationConfitions:
-method = Euler
-t = 50
-dt = 0.5
+method = Euler;
+t = 50;
+dt = 0.5;
 
 ```   
