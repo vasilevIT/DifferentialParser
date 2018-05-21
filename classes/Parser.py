@@ -67,25 +67,25 @@ class Parser(ParserBase):
         """
         self.passSpace()
         var = self.integrationVariable()
-        self.isNextWord("=")
+        self.isNextWordWithoutLineBreak("=")
         block = self.right_part()
         self.integrator.equations[var] = block
+        self.isNextWordWithoutLineBreak(';')
 
     def right_part(self):
         """
         Правая часть уравнениея
         :return:string
         """
-        self.passSpace()
+        self.passSpace(True)
         block = ""
-        if self.isNextWord("-", False):
+        if self.isNextWordWithoutLineBreak("-", False):
             block += "-"
         while True:
             block += self.additionBlock()
             if self.isEOL():
-                self.current_index += 1
                 break
-            if self.isNextWord(")", False):
+            if self.isNextWordWithoutLineBreak(")", False):
                 self.current_index -= 1
                 break
         return block
@@ -97,9 +97,9 @@ class Parser(ParserBase):
         """
         add_block = self.multiplicationBlock()
         while True:
-            if self.isNextWord("+", False):
+            if self.isNextWordWithoutLineBreak("+", False):
                 add_block += " + " + self.multiplicationBlock()
-            elif self.isNextWord("-", False):
+            elif self.isNextWordWithoutLineBreak("-", False):
                 add_block += " - " + self.multiplicationBlock()
             else:
                 break
@@ -107,15 +107,29 @@ class Parser(ParserBase):
 
     def multiplicationBlock(self):
         """
-        Блок арифмитического умножения/деления
+        Блок арифметического умножения/деления
+        :return:string
+        """
+        block = self.degreeBlock()
+        while True:
+            if self.isNextWordWithoutLineBreak("*", False):
+                block += " * " + self.degreeBlock()
+            elif self.isNextWordWithoutLineBreak("/", False):
+                block += " / " + self.degreeBlock()
+            else:
+                break
+
+        return block
+
+    def degreeBlock(self):
+        """
+        Блок арифметической степени
         :return:string
         """
         block = self.varBlock()
         while True:
-            if self.isNextWord("*", False):
-                block += " * " + self.varBlock()
-            elif self.isNextWord("/", False):
-                block += " / " + self.varBlock()
+            if self.isNextWordWithoutLineBreak("^", False):
+                block += " ** " + self.varBlock()
             else:
                 break
 
@@ -127,10 +141,10 @@ class Parser(ParserBase):
         :return:string
         """
         block = ""
-        if self.isNextWord("(", False):
+        if self.isNextWordWithoutLineBreak("(", False):
             block += "("
             block += str(self.right_part())
-            if self.isNextWord(")"):
+            if self.isNextWordWithoutLineBreak(")"):
                 block += ")"
         elif self.isDigital():
             block += str(self.Number())
@@ -146,7 +160,9 @@ class Parser(ParserBase):
         self.passSpace()
 
     def begin_conditions(self):
+        self.passSpace()
         self.isNextWord(self.BeginConditions)
+        self.passSpace()
         while (self.current_index < len(self.text) - len(self.IntegrationConfitions)) and (
                     self.text[self.current_index:self.current_index + len(self.IntegrationConfitions)]
                     != self.IntegrationConfitions):
@@ -164,6 +180,7 @@ class Parser(ParserBase):
         self.isNextWord("=")
         value = self.Number()
         self.integrator.begin_conditions[var] = value
+        self.isNextWordWithoutLineBreak(';')
         self.passSpace()
 
     def integration_conditions(self):
@@ -181,21 +198,20 @@ class Parser(ParserBase):
         Метод интегрирования
         :return:
         """
+        self.passSpace()
         self.isNextWord(self.IntegrationMethod)
         self.isNextWord("=")
         self.integration_method_name()
-        if self.isEOL():
-            self.current_index += 1
-        else:
-            raise Exception("Ожидалась ';'")
+        self.isNextWordWithoutLineBreak(';')
 
     def integration_method_name(self):
         """
         Название метода интегрирования
         :return:
         """
+        self.passSpace(True)
         for method in Integrator.integration_methods:
-            if self.isNextWord(method, False):
+            if self.isNextWordWithoutLineBreak(method, False):
                 self.integrator.integration_method = method
                 return method
         raise Exception("Неизвестный метод интегрирования. Укажите один из следующих:" + str(Integrator.integration_methods))
@@ -207,13 +223,10 @@ class Parser(ParserBase):
         :return:
         """
         self.isNextWord(self.IntegrationVar)
-        self.isNextWord("=")
+        self.isNextWordWithoutLineBreak("=")
         value = self.Number()
         self.integrator.integration_var_value = value
-        if self.isEOL():
-            self.current_index += 1
-        else:
-            raise Exception("Ожидалась ';'")
+        self.isNextWordWithoutLineBreak(';')
 
     def integration_var_step(self):
         """
@@ -221,11 +234,8 @@ class Parser(ParserBase):
         :return:
         """
         self.isNextWord(self.IntegrationVarStep)
-        self.isNextWord("=")
+        self.isNextWordWithoutLineBreak("=")
         value = self.Number()
         self.integrator.integration_var_step_value = value
-        if self.isEOL():
-            self.current_index += 1
-        else:
-            raise Exception("Ожидалась ';'")
+        self.isNextWordWithoutLineBreak(';')
 

@@ -126,7 +126,7 @@ class ChartsForm(QDialog):
         Возвращает случайный цвет из списка
         :return:
         """
-        if self.colors.count() > 0:
+        if len(self.colors) > 0:
             return self.colors.pop()
         else:
             return QColor("black")

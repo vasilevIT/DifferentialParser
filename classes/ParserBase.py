@@ -25,15 +25,15 @@ class ParserBase:
 
     def init(self):
         self.current_index = 0
-        self.text = re.sub(r'[\n\r]', ' ', self.text)
+        # self.text = re.sub(r'[\n\r]', ' ', self.text)
 
     def error(self, param):
         txt = param + " Символ #" + str(self.current_index)
         raise Exception(txt)
 
-    def passSpace(self):
+    def passSpace(self, only_spaces = False):
         while self.current_index < len(self.text):
-            if self.text[self.current_index] == ' ':
+            if (self.text[self.current_index] == ' ') or (not only_spaces and ((self.text[self.current_index] == '\r') or (self.text[self.current_index] == '\n'))):
                 self.current_index += 1
                 continue
             else:
@@ -41,6 +41,13 @@ class ParserBase:
 
     def isNextWord(self, word, force=True):
         self.passSpace()
+        return self._isNextWord(word, force)
+
+    def isNextWordWithoutLineBreak(self, word, force=True):
+        self.passSpace(True)
+        return self._isNextWord(word, force)
+
+    def _isNextWord(self,word, force):
         find_word = self.text[self.current_index:self.current_index + len(word)]
         if find_word != word:
             if force:
@@ -82,10 +89,10 @@ class ParserBase:
         :return:
         """
         var_name = ""
-        self.passSpace()
+        self.passSpace(True)
         i = 0
         while self.current_index < len(self.text):
-            if not self.readSymbol():
+            if not self.readVarSymbol():
                 break
             var_name += self.text[self.current_index - 1: self.current_index]
             i += 1
@@ -112,6 +119,16 @@ class ParserBase:
             return True
         return False
 
+    def readVarSymbol(self):
+        """
+        Читает символ из переменной
+        :return:boolean
+        """
+        if self.isDigital() or self.isChar() or re.match('[\_]+', self.text[self.current_index]):
+            self.current_index += 1
+            return True
+        return False
+
     def isDigital(self):
         """
         Проверяет, является ли текущий символ цифрой
@@ -133,7 +150,7 @@ class ParserBase:
     def Number(self):
         # self.passSpace()
         number = self.IntNumber()
-        if self.isNextWord(".", False):
+        if self.isNextWordWithoutLineBreak(".", False):
             number += "."
             number += self.IntNumber()
         if len(number) < 1:
@@ -141,7 +158,7 @@ class ParserBase:
         return number
 
     def IntNumber(self):
-        self.passSpace()
+        self.passSpace(True)
         number = ""
         while True:
             if self.isDigital():
@@ -160,7 +177,7 @@ class ParserBase:
             self.current_index -= 1
 
     def isEOL(self):
-        self.passSpace()
-        if self.text[self.current_index] == ";":
+        self.passSpace(True)
+        if (self.text[self.current_index] == ";") or (self.text[self.current_index] == "\r") or (self.text[self.current_index] == "\n"):
             return True
         return False

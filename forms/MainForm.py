@@ -99,18 +99,27 @@ dt = 0.5;
 
     def parseStart(self):
         text = self.txtEdit.toPlainText()
-        self.txtEdit.setText(text)
+        cursor = self.txtEdit.textCursor()
+        current_position = cursor.position()
+        cursor.setPosition(0)
+        self.txtEdit.setTextCursor(cursor)
+        self.txtEdit.setPlainText(text)
         self.error.setText("")
+        cursor.setPosition(current_position)
+        self.txtEdit.setTextCursor(cursor)
         try:
             self.parser.parse(text)
         except Exception as e:
             text = self.txtEdit.toPlainText()
             self.error.setText(e.args[0])
-            text = text[0:(e.args[1])] \
+            shift = 0
+            if (e.args[1] > 2):
+                shift = -2
+            text = text[0:(e.args[1]) + shift] \
                    + "<span style=\"font-weight:600; color:#FF0000;\" >" \
-                   + text[e.args[1]:(e.args[1] + e.args[2])] \
+                   + text[e.args[1] + shift:(e.args[1] + shift + e.args[2])] \
                    + "</span>" \
-                   + text[e.args[1] + e.args[2]:]
+                   + text[e.args[1] + shift + e.args[2]:]
             text = text.replace("\n", "<br>")
             self.txtEdit.setHtml(text)
             cursor = self.txtEdit.textCursor()
@@ -131,7 +140,10 @@ dt = 0.5;
                 data_keys = list(data_items)
                 data_values = list(data_items.values())
                 chartForm.add_data(data_keys, data_values, None, key)
-            chartForm.set_integration_method("Метод интегрирования: " + self.parser.integrator.integration_method + "\nШаг интегрирования: " + str(self.parser.integrator.integration_var_step_value) + "\nИнтервал интегрирования: " + str(self.parser.integrator.integration_var_value))
+            chartForm.set_integration_method(
+                "Метод интегрирования: " + self.parser.integrator.integration_method + "\nШаг интегрирования: " + str(
+                    self.parser.integrator.integration_var_step_value) + "\nИнтервал интегрирования: " + str(
+                    self.parser.integrator.integration_var_value))
             chartForm.show()
         except Exception as e:
             self.error.setText(e.__str__())
