@@ -72,7 +72,7 @@ class Integrator:
             for key, equation in self.equations.items():
                 equation_value = MathSolver.solv(equation, params)
                 integration_var = key.replace("/dt", "")
-                equation_value = float(params[integration_var]) + equation_value
+                equation_value = float(params[integration_var]) + (float(self.integration_var_step_value) * equation_value)
                 result[t][key] = equation_value
                 params[integration_var] = equation_value
         return result

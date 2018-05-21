@@ -161,6 +161,10 @@ class Parser(ParserBase):
         self.passSpace()
 
     def begin_conditions(self):
+        """
+        Блок с начальными условиями
+        :return:
+        """
         self.passSpace()
         self.isNextWord(self.BeginConditions)
         self.passSpace()
