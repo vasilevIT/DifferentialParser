@@ -16,7 +16,7 @@ from forms.ChartsForm import ChartsForm
 
 
 class MainForm(QWidget):
-    EXAMPLE_TEXT1 = """Program: DiffSolv1.0
+    EXAMPLE_TEXT1 = """Program: DiffSolv
 
 Equations:
 Susc/dt = -A * Susc * Sick;

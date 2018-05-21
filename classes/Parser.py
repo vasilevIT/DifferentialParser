@@ -23,6 +23,8 @@ class Parser(ParserBase):
         :param text:
         :return:
         """
+
+        self.not_init_vars = list()
         self.text = text
         self.init()
         try:
@@ -41,8 +43,7 @@ class Parser(ParserBase):
         """
         self.passSpace()
         self.isNextWord(self.Program)
-        self.space()
-        self.programName()
+        self.var()
 
     def equations(self):
         """

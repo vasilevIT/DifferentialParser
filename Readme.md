@@ -30,7 +30,7 @@ Language = "Programm" ProgramName Equations BeginConditions IntegrationConfition
 ProgramName = Var
 Equations = "Equations" ":" Equation ... Equation
 BeginConditions = "BeginConditions" ":" BeginContition ... BeginCondition
-IntegrationConfitions = "IntegrationConfitions" ":"  IntegrationConfition
+IntegrationConditions = "IntegrationConditions" ":"  IntegrationConfition
 
 Equation = IntegrationVar "=" RightBlock ";"
 RightBlock = </ "-" /> AdditionBlock ("+" ! "-") ... AdditionBlock
@@ -40,10 +40,10 @@ DegreeBlock = Var ! Number ! "(" RightBlock ")"
 
 BeginContition = Var "=" Number ";"
 
-IntegrationConfition = IntegrationConfitionMethod IntegrationConfitionPeriod IntegrationConfitionStep
-IntegrationConfitionMethod = "method" "=" ("Euler" ! "Runge-Kutti-1" ! "Runge-Kutti-2" ! ... ! "Runge-Kutti-4") ";"
-IntegrationConfitionPeriod = "t" "=" Number ";"
-IntegrationConfitionStep = "dt" "=" Number ";"
+IntegrationCondition = IntegrationConditionMethod IntegrationConditionPeriod IntegrationConditionStep
+IntegrationConditionMethod = "method" "=" ("Euler" ! "Runge-Kutti-1" ! "Runge-Kutti-2" ! ... ! "Runge-Kutti-4") ";"
+IntegrationConditionPeriod = "t" "=" Number ";"
+IntegrationConditionStep = "dt" "=" Number ";"
 
 IntegrationVar = Var "/dt"
 Var = Symbol ... Symbol
@@ -59,7 +59,7 @@ Digit = 0 ! 1 ! ... ! 9
 ### Пример языка
 
 ```
-program DiffSolv1.0
+program DiffSolv1
 
 Equations:
 Susc/dt = -A * Susc * Sick;
@@ -74,7 +74,7 @@ A = 000.1;
 B = 0.07;
 C = 0.01;
 
-IntegrationConfitions:
+IntegrationConditions:
 method = Euler;
 t = 50;
 dt = 0.5;
