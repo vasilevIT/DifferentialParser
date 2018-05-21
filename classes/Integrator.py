@@ -7,6 +7,7 @@
 """
 
 import numpy as np
+import copy
 
 from classes.MathSolver import MathSolver
 
@@ -72,7 +73,8 @@ class Integrator:
             for key, equation in self.equations.items():
                 equation_value = MathSolver.solv(equation, params)
                 integration_var = key.replace("/dt", "")
-                equation_value = float(params[integration_var]) + equation_value
+                equation_value = float(params[integration_var]) + (
+                    float(self.integration_var_step_value) * equation_value)
                 result[t][key] = equation_value
                 params[integration_var] = equation_value
         return result
@@ -81,6 +83,65 @@ class Integrator:
         """
         Метод численного интегрирования Эйлера, модифицированный
         :return:dict
+        """
+
+        result = dict()
+        params = self.begin_conditions
+        result[0] = dict()
+        for key, equation in self.equations.items():
+            integration_var = key.replace("/dt", "")
+            init_value = params[integration_var]
+            result[0][key] = float(init_value)
+
+        for t in np.arange(1, float(self.integration_var_value) + float(self.integration_var_step_value),
+                           float(self.integration_var_step_value)):
+            result[t] = dict()
+            for key, equation in self.equations.items():
+                params_temp = copy.deepcopy(params)
+                # 1
+                equation_value_1 = MathSolver.solv(equation, params_temp)
+                integration_var = key.replace("/dt", "")
+                equation_value = float(params_temp[integration_var]) + equation_value_1
+                params_temp[integration_var] = equation_value
+                # 2
+                equation_value_2 = MathSolver.solv(equation, params_temp)
+                # result value
+                equation_value = float(params[integration_var]) + 0.5 * float(self.integration_var_step_value) * (
+                    equation_value_1 + equation_value_2)
+                result[t][key] = equation_value
+                params[integration_var] = equation_value
+
+        return result
+
+    def runge_kutti(self, n=1):
+        """
+        Метод численного интегрирования Рунге-Кутты n-го порядка
+        :return:dict
+        """
+
+        # raise Exception("Метода Рунге-Кутта еще не реализован")
+        result = dict()
+        params = self.begin_conditions
+        result[0] = dict()
+        for key, equation in self.equations.items():
+            integration_var = key.replace("/dt", "")
+            init_value = params[integration_var]
+            result[0][key] = float(init_value)
+
+        if n == 1:
+            return self.euler()
+        elif n == 2:
+            return self.modify_euler()
+        elif n == 3:
+            pass
+        elif n == 4:
+            return self.runge_kutti_4()
+        raise Exception("Неизвестная степень метода Рунге-Кутта")
+
+    def runge_kutti_4(self):
+        """
+        Метод Рунге-Кутты 4-го порядка
+        :return:
         """
         result = dict()
         params = self.begin_conditions
@@ -94,37 +155,30 @@ class Integrator:
                            float(self.integration_var_step_value)):
             result[t] = dict()
             for key, equation in self.equations.items():
+                params_temp = copy.deepcopy(params)
                 integration_var = key.replace("/dt", "")
-                params_temp = params.copy()
-                A_equation_value = MathSolver.solv(equation, params_temp)
-                equation_value = float(params_temp[integration_var]) + float(A_equation_value)
+                # 1
+                equation_value_1 = MathSolver.solv(equation, params_temp)
+                equation_value = float(params_temp[integration_var]) + 0.5 * float(
+                    self.integration_var_step_value) * equation_value_1
                 params_temp[integration_var] = equation_value
-                B_equation_value = MathSolver.solv(equation, params_temp)
-                equation_value = float(params[integration_var]) + 0.5 * (A_equation_value + B_equation_value)
+                # 2
+                equation_value_2 = MathSolver.solv(equation, params_temp)
+                equation_value = float(params_temp[integration_var]) + 0.5 * float(
+                    self.integration_var_step_value) * equation_value_2
+                params_temp[integration_var] = equation_value
+                # 3
+                equation_value_3 = MathSolver.solv(equation, params_temp)
+                equation_value = float(params_temp[integration_var]) + equation_value_3
+                params_temp[integration_var] = equation_value
+                # 4
+                equation_value_4 = MathSolver.solv(equation, params_temp)
+                equation_value_4 = float(self.integration_var_step_value) * equation_value_4
+                # result value
+                y_val = (1 / 6) * float(self.integration_var_step_value) \
+                                   * (equation_value_1 + 2 * equation_value_2 + 2 * equation_value_3 + equation_value_4)
+                equation_value = float(params[integration_var]) + y_val
                 result[t][key] = equation_value
                 params[integration_var] = equation_value
+
         return result
-
-    def runge_kutti(self, n=1):
-        """
-        Метод численного интегрирования Рунге-Кутты n-го порядка
-        :return:dict
-        """
-
-        result = dict()
-        params = self.begin_conditions
-        result[0] = dict()
-        for key, equation in self.equations.items():
-            integration_var = key.replace("/dt", "")
-            init_value = params[integration_var]
-            result[0][key] = float(init_value)
-
-        if n == 1:
-            pass
-        elif n == 2:
-            pass
-        elif n == 3:
-            pass
-        elif n == 4:
-            pass
-        raise Exception("Неизвестная степень метода Рунге-Кутта")
