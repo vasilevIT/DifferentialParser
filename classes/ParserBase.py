@@ -22,25 +22,65 @@ class ParserBase:
         super().__init__()
         self.text = ''
         self.current_index = 0
+        self.not_init_vars = list()
 
     def init(self):
+        """
+        Инициализация
+        :return:
+        """
         self.current_index = 0
-        self.text = re.sub(r'[\n\r]', ' ', self.text)
+        # self.text = re.sub(r'[\n\r]', ' ', self.text)
 
     def error(self, param):
+        """
+        Генерация текста ошибки
+        :param param:
+        :return:
+        """
         txt = param + " Символ #" + str(self.current_index)
         raise Exception(txt)
 
-    def passSpace(self):
+    def passSpace(self, only_spaces = False):
+        """
+        Пропускает пустые символы
+        :param only_spaces: Пропускать только пробелы (без переносов строки)
+        :return:
+        """
         while self.current_index < len(self.text):
-            if self.text[self.current_index] == ' ':
+            if (self.text[self.current_index] == ' ') or (not only_spaces and ((self.text[self.current_index] == '\r') or (self.text[self.current_index] == '\n'))):
                 self.current_index += 1
                 continue
             else:
                 break
 
     def isNextWord(self, word, force=True):
+        """
+        Ищет слово с пропуском пустых символов
+        :param word: Слово, которое мы ищем
+        :param force: Генерировать ли текст ошибки
+        :return:
+        """
         self.passSpace()
+        return self._isNextWord(word, force)
+
+    def isNextWordWithoutLineBreak(self, word, force=True):
+        """
+        Ищет слово с пропуском только пробелов (поиск происходит только в пределах одной строки)
+        :param word: Слово, которое мы ищем
+        :param force: Генерировать ли текст ошибки
+        :return:
+        """
+        self.passSpace(True)
+        return self._isNextWord(word, force)
+
+    def _isNextWord(self,word, force):
+        """
+        Если word является следующим словом в строке, то возвращает True, иначе генерирует ошибку
+        :param word: Слово, которое мы ищем
+        :param force: Генерировать ли текст ошибки
+        :return:
+        """
         find_word = self.text[self.current_index:self.current_index + len(word)]
         if find_word != word:
             if force:
@@ -60,11 +100,19 @@ class ParserBase:
         raise Exception(self.error)
 
     def isSpace(self):
+        """
+        Определяет, что текущий симвл пробел
+        :return:
+        """
         if self.text[self.current_index] == ' ':
             return True
         return False
 
     def programName(self):
+        """
+        Считывает название программы
+        :return:
+        """
         self.passSpace()
         i = 0
         while self.current_index < len(self.text):
@@ -82,10 +130,10 @@ class ParserBase:
         :return:
         """
         var_name = ""
-        self.passSpace()
+        self.passSpace(True)
         i = 0
         while self.current_index < len(self.text):
-            if not self.readSymbol():
+            if not self.readVarSymbol():
                 break
             var_name += self.text[self.current_index - 1: self.current_index]
             i += 1
@@ -98,6 +146,7 @@ class ParserBase:
 
     def integrationVariable(self):
         var_name = self.var()
+        self.add_not_init_var(var_name)
         self.isNextWord("/")
         self.isNextWord(self.IntegrationVarStep)
         return var_name + "/" + self.IntegrationVarStep
@@ -108,6 +157,16 @@ class ParserBase:
         :return:boolean
         """
         if self.isDigital() or self.isChar() or re.match('[\_\.]+', self.text[self.current_index]):
+            self.current_index += 1
+            return True
+        return False
+
+    def readVarSymbol(self):
+        """
+        Читает символ из переменной
+        :return:boolean
+        """
+        if self.isDigital() or self.isChar() or re.match('[\_]+', self.text[self.current_index]):
             self.current_index += 1
             return True
         return False
@@ -131,9 +190,13 @@ class ParserBase:
         return False
 
     def Number(self):
+        """
+        Считывает число (целое или дробное)
+        :return:
+        """
         # self.passSpace()
         number = self.IntNumber()
-        if self.isNextWord(".", False):
+        if self.isNextWordWithoutLineBreak(".", False):
             number += "."
             number += self.IntNumber()
         if len(number) < 1:
@@ -141,7 +204,11 @@ class ParserBase:
         return number
 
     def IntNumber(self):
-        self.passSpace()
+        """
+        Считывает целое число
+        :return:
+        """
+        self.passSpace(True)
         number = ""
         while True:
             if self.isDigital():
@@ -160,7 +227,30 @@ class ParserBase:
             self.current_index -= 1
 
     def isEOL(self):
-        self.passSpace()
-        if self.text[self.current_index] == ";":
+        """
+        Определяет, что достигнут конец строки
+        :return:
+        """
+        self.passSpace(True)
+        if (self.text[self.current_index] == ";") or (self.text[self.current_index] == "\r") or (self.text[self.current_index] == "\n"):
             return True
         return False
+
+
+    def add_not_init_var(self, var):
+        """
+        Добавляет переменную в список не инициализированных переменных
+        :param var:
+        :return:
+        """
+        if not (var in self.not_init_vars):
+            self.not_init_vars.append(var)
+
+    def free_not_init_var(self,var):
+        """
+        Удаляет переменную из списка после ее инициализации
+        :param var:
+        :return:
+        """
+        if var in self.not_init_vars:
+            self.not_init_vars.remove(var)
