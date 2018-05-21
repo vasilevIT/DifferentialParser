@@ -22,6 +22,7 @@ class ParserBase:
         super().__init__()
         self.text = ''
         self.current_index = 0
+        self.not_init_vars = list()
 
     def init(self):
         self.current_index = 0
@@ -105,6 +106,7 @@ class ParserBase:
 
     def integrationVariable(self):
         var_name = self.var()
+        self.add_not_init_var(var_name)
         self.isNextWord("/")
         self.isNextWord(self.IntegrationVarStep)
         return var_name + "/" + self.IntegrationVarStep
@@ -181,3 +183,12 @@ class ParserBase:
         if (self.text[self.current_index] == ";") or (self.text[self.current_index] == "\r") or (self.text[self.current_index] == "\n"):
             return True
         return False
+
+
+    def add_not_init_var(self, var):
+        if not (var in self.not_init_vars):
+            self.not_init_vars.append(var)
+
+    def free_not_init_var(self,var):
+        if var in self.not_init_vars:
+            self.not_init_vars.remove(var)

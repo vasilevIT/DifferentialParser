@@ -12,7 +12,6 @@ from classes.ParserBase import ParserBase
 
 
 class Parser(ParserBase):
-
     def __init__(self) -> None:
         super().__init__()
         self.integrator = Integrator()
@@ -31,10 +30,10 @@ class Parser(ParserBase):
             self.equations()
             self.begin_conditions()
             self.integration_conditions()
+            print(self.not_init_vars)
         except Exception as e:
             traceback.print_exc(file=sys.stdout)
             raise Exception(e.args[0], self.current_index, 2)
-        print(self.integrator)
 
     def program(self):
         """
@@ -149,7 +148,9 @@ class Parser(ParserBase):
         elif self.isDigital():
             block += str(self.Number())
         else:
-            block += str(self.var())
+            var = str(self.var())
+            self.add_not_init_var(var)
+            block += var
         return block
 
     def method(self):
@@ -170,6 +171,9 @@ class Parser(ParserBase):
             if self.isEOL():
                 self.current_index += 1
             self.passSpace()
+        if len(self.not_init_vars) > 0:
+            self.goToStartWord()
+            self.error("Ошибка. Не проинициализированны следующие переменные: " + self.not_init_vars.__str__())
 
     def begin_condition(self):
         """
@@ -177,6 +181,7 @@ class Parser(ParserBase):
         :return:
         """
         var = self.var()
+        self.free_not_init_var(var)
         self.isNextWord("=")
         value = self.Number()
         self.integrator.begin_conditions[var] = value
@@ -214,8 +219,8 @@ class Parser(ParserBase):
             if self.isNextWordWithoutLineBreak(method, False):
                 self.integrator.integration_method = method
                 return method
-        raise Exception("Неизвестный метод интегрирования. Укажите один из следующих:" + str(Integrator.integration_methods))
-
+        raise Exception(
+            "Неизвестный метод интегрирования. Укажите один из следующих:" + str(Integrator.integration_methods))
 
     def integration_var(self):
         """
@@ -238,4 +243,3 @@ class Parser(ParserBase):
         value = self.Number()
         self.integrator.integration_var_step_value = value
         self.isNextWordWithoutLineBreak(';')
-
