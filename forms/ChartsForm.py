@@ -34,7 +34,7 @@ class ChartsForm(QDialog):
     def __init__(self):
         super().__init__()
         self.initUI()
-
+        self.integrator = None
         self.colors = list()
         self.colors.append(QColor("black"))
         self.colors.append(QColor("red"))
@@ -117,8 +117,7 @@ class ChartsForm(QDialog):
         self.chart.addSeries(curve)
         self.chart.createDefaultAxes()
         self.ncurves += 1
-        print(ydata)
-        summary_value = np.sum(ydata)
+        summary_value = np.sum(ydata) * float(self.integrator.integration_var_step_value)
         self.label_summary.setText(self.label_summary.text() + curve_name + " = " + str(summary_value) + "\n")
 
     def getRandomColor(self):
@@ -130,6 +129,14 @@ class ChartsForm(QDialog):
             return self.colors.pop()
         else:
             return QColor("black")
+
+    def setIntegrator(self, integrator):
+        """
+
+        :param integrator:Integrator
+        :return:
+        """
+        self.integrator = integrator
 
     def show(self):
         self.exec_()

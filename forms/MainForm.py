@@ -136,6 +136,7 @@ dt = 0.5;
                         data_clear[var] = {}
                     data_clear[var][key] = value
             chartForm = ChartsForm()
+            chartForm.setIntegrator(self.parser.integrator)
             for key, data_items in data_clear.items():
                 data_keys = list(data_items)
                 data_values = list(data_items.values())

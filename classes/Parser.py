@@ -30,7 +30,6 @@ class Parser(ParserBase):
             self.equations()
             self.begin_conditions()
             self.integration_conditions()
-            print(self.not_init_vars)
         except Exception as e:
             traceback.print_exc(file=sys.stdout)
             raise Exception(e.args[0], self.current_index, 2)
