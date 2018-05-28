@@ -20,10 +20,13 @@ class MathSolver:
         :param params:dict - переменные
         :return:float - результат решения
         """
+        print(equation)
         for key, value in params.items():
             equation = equation.replace(key, str(value))
         try:
+            print(equation)
             value = eval(equation)
             return value
         except Exception as e:
-            raise Exception("Не удалось решить уравнение. " + e.args[0])
+            print(e)
+            raise Exception("Не удалось решить уравнение. " + e.args[1])
