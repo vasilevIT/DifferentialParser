@@ -1,3 +1,5 @@
+[![GitHub version](https://badge.fury.io/gh/vasilevIT%2FDifferentialParser.svg)](https://github.com/vasilevIT/DifferentialParser/releases)
+
 # Курсовая работа по предмету "Корягин 2.0"
 #### Version 0.3.0
 Реализован парсинг текста и анализ синтаксических ошибок.
