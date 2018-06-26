@@ -106,5 +106,22 @@ method = Euler;
 t = 50;
 dt = 0.5;
 
+```
 
+## Example 6
+```
+Program: DiffSolv
+
+Equations:
+x/dt = sin((x/0.2)*2);
+y/dt = cos(y * x + 2);
+
+BeginConditions:
+x = 0.0001;
+y = 0.0001;
+
+IntegrationConditions:
+method = Euler;
+t = 50;
+dt = 0.5;
 ```

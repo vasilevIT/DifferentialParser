@@ -36,6 +36,7 @@ Equation = IntegrationVar "=" RightBlock ";"
 RightBlock = </ "-" /> AdditionBlock ("+" ! "-") ... AdditionBlock
 AdditionBlock = MultiplicationBlock ("*" ! "/") ... MultiplicationBlock 
 MultiplicationBlock = DegreeBlock "^" ... DegreeBlock
+FuncBlock = "sin(" RightBlock ")" ! "cos(" RightBlock ")" ! DegreeBlock
 DegreeBlock = Var ! Number ! "(" RightBlock ")"
 
 BeginContition = Var "=" Number ";"
