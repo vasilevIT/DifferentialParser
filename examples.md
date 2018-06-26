@@ -87,3 +87,24 @@ t = 30;
 dt = 0.1;
 
 ```
+
+
+## Example 5
+```
+Program: DiffSolv
+
+Equations:
+x/dt = sinx;
+y/dt = cosy;
+
+BeginConditions:
+x = 0.0001;
+y = 0.0001;
+
+IntegrationConditions:
+method = Euler;
+t = 50;
+dt = 0.5;
+
+
+```

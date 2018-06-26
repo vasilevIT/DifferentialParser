@@ -125,13 +125,29 @@ class Parser(ParserBase):
         Блок арифметической степени
         :return:string
         """
-        block = self.varBlock()
+        block = self.funcBlock()
         while True:
             if self.isNextWordWithoutLineBreak("^", False):
-                block += " ** " + self.varBlock()
+                block += " ** " + self.funcBlock()
             else:
                 break
 
+        return block
+
+    def funcBlock(self):
+        """
+        Блок функций
+        :return: string
+        """
+        if self.isNextWordWithoutLineBreak("sin", False):
+            print("finded sin")
+            block = "math.sin(" + self.varBlock() + ")"
+
+        elif self.isNextWordWithoutLineBreak("cos", False):
+            print("finded cos")
+            block = "math.cos(" + self.varBlock() + ")"
+        else:
+            block = self.varBlock()
         return block
 
     def varBlock(self):
