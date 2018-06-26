@@ -94,8 +94,8 @@ dt = 0.1;
 Program: DiffSolv
 
 Equations:
-x/dt = sinx;
-y/dt = cosy;
+x/dt = sin(x);
+y/dt = cos(y);
 
 BeginConditions:
 x = 0.0001;

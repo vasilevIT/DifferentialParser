@@ -140,12 +140,26 @@ class Parser(ParserBase):
         :return: string
         """
         if self.isNextWordWithoutLineBreak("sin", False):
-            print("finded sin")
-            block = "math.sin(" + self.varBlock() + ")"
+            block = "math.sin"
+
+            if self.isNextWordWithoutLineBreak("("):
+                block += "("
+
+            block += self.right_part()
+
+            if self.isNextWordWithoutLineBreak(")"):
+                block += ")"
 
         elif self.isNextWordWithoutLineBreak("cos", False):
-            print("finded cos")
-            block = "math.cos(" + self.varBlock() + ")"
+            block = "math.cos"
+
+            if self.isNextWordWithoutLineBreak("("):
+                block += "("
+
+            block += self.right_part()
+
+            if self.isNextWordWithoutLineBreak(")"):
+                block += ")"
         else:
             block = self.varBlock()
         return block
