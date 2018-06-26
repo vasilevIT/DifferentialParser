@@ -23,6 +23,8 @@ class Parser(ParserBase):
         :param text:
         :return:
         """
+
+        self.not_init_vars = list()
         self.text = text
         self.init()
         try:
@@ -41,8 +43,7 @@ class Parser(ParserBase):
         """
         self.passSpace()
         self.isNextWord(self.Program)
-        self.space()
-        self.programName()
+        self.var()
 
     def equations(self):
         """
@@ -124,13 +125,43 @@ class Parser(ParserBase):
         Блок арифметической степени
         :return:string
         """
-        block = self.varBlock()
+        block = self.funcBlock()
         while True:
             if self.isNextWordWithoutLineBreak("^", False):
-                block += " ** " + self.varBlock()
+                block += " ** " + self.funcBlock()
             else:
                 break
 
+        return block
+
+    def funcBlock(self):
+        """
+        Блок функций
+        :return: string
+        """
+        if self.isNextWordWithoutLineBreak("sin", False):
+            block = "math.sin"
+
+            if self.isNextWordWithoutLineBreak("("):
+                block += "("
+
+            block += self.right_part()
+
+            if self.isNextWordWithoutLineBreak(")"):
+                block += ")"
+
+        elif self.isNextWordWithoutLineBreak("cos", False):
+            block = "math.cos"
+
+            if self.isNextWordWithoutLineBreak("("):
+                block += "("
+
+            block += self.right_part()
+
+            if self.isNextWordWithoutLineBreak(")"):
+                block += ")"
+        else:
+            block = self.varBlock()
         return block
 
     def varBlock(self):

@@ -6,6 +6,7 @@
 
 """
 
+import math
 
 class MathSolver:
     """
@@ -26,4 +27,6 @@ class MathSolver:
             value = eval(equation)
             return value
         except Exception as e:
-            raise Exception("Не удалось решить уравнение. " + e.args[0])
+            print(equation)
+            print(e)
+            raise Exception("Не удалось решить уравнение. " + e.args[1])

@@ -16,7 +16,7 @@ from forms.ChartsForm import ChartsForm
 
 
 class MainForm(QWidget):
-    EXAMPLE_TEXT1 = """Program: DiffSolv1.0
+    EXAMPLE_TEXT1 = """Program: DiffSolv
 
 Equations:
 Susc/dt = -A * Susc * Sick;
@@ -39,7 +39,6 @@ dt = 0.5;
 
     def __init__(self):
         super().__init__()
-        self.parser = Parser()
         self.initUI()
 
     def initUI(self):
@@ -98,6 +97,7 @@ dt = 0.5;
         self.error.setText("")
 
     def parseStart(self):
+        self.parser = Parser()
         text = self.txtEdit.toPlainText()
         cursor = self.txtEdit.textCursor()
         current_position = cursor.position()

@@ -77,6 +77,8 @@ class Integrator:
                     float(self.integration_var_step_value) * equation_value)
                 result[t][key] = equation_value
                 params[integration_var] = equation_value
+            print(result)
+            print(params)
         return result
 
     def modify_euler(self):
